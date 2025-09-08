@@ -4,7 +4,7 @@ import Stomp from 'stompjs';
 
 class DebugService {
   constructor() {
-    this.baseURL = process.env.REACT_APP_API_URL || '''''
+             this.baseURL = process.env.REACT_APP_API_URL || '';
     this.socket = null;
     this.stompClient = null;
     this.sessionId = null;
