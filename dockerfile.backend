@@ -1,0 +1,12 @@
+# Build stage – compile your Spring Boot app with Gradle
+FROM eclipse-temurin:17-jdk AS builder
+WORKDIR /workspace
+COPY . .
+RUN chmod +x ./gradlew && ./gradlew clean bootJar
+
+# Runtime stage – run the built jar with a lightweight JRE
+FROM eclipse-temurin:17-jre
+WORKDIR /workspace
+COPY --from=builder /workspace/build/libs/*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","app.jar"]
