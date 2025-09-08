@@ -1,0 +1,12 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "sockjs-client": "^1.6.1",
+    "stompjs": "^2.3.3",
+    "axios": "^1.6.0",
+    "lucide-react": "^0.263.1"
+  },
+  "proxy": "http://localhost:8080"
+}
