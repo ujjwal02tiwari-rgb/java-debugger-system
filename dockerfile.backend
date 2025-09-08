@@ -1,26 +1,22 @@
 
 
+# dockerfile.backend (safe backend-only build)
 FROM gradle:8.9-jdk17 AS build
 WORKDIR /app
 
-
+# Wrapper + gradle files
 COPY gradlew gradlew.bat ./
 COPY gradle ./gradle
-
-COPY build.gradle settings.gradle* ./
-
-COPY config ./config
+COPY settings.gradle* build.gradle ./
+COPY config ./config    # if you 'apply from' anything here
 
 RUN chmod +x ./gradlew
 
-
-RUN ./gradlew --no-daemon dependencies --stacktrace --info
-
-
+# Copy sources and build
 COPY src ./src
-RUN ./gradlew --no-daemon clean bootJar -x test
+RUN ./gradlew --no-daemon clean bootJar -x test --stacktrace
 
-
+# Runtime
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar /app/app.jar
