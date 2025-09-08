@@ -5,9 +5,9 @@
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sockjs-client": "^1.6.1",
-    "stompjs": "^2.3.3",
-    "axios": "^1.6.0",
+  "@stomp/stompjs": "^7.0.0",
+  "sockjs-client": "^1.6.2"
+  "axios": "^1.6.0",
     "lucide-react": "^0.263.1"
   },
   "devDependencies": {
