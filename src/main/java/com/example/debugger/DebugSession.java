@@ -1,12 +1,29 @@
 package com.example.debugger;
 
-import com.sun.jdi.*;
-import com.sun.jdi.connect.*;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import com.sun.jdi.Bootstrap;
+import com.sun.jdi.Location;
+import com.sun.jdi.Method;
+import com.sun.jdi.ReferenceType;
+import com.sun.jdi.ThreadReference;
+import com.sun.jdi.VirtualMachine;
+import com.sun.jdi.connect.AttachingConnector;
+import com.sun.jdi.connect.Connector;
+import com.sun.jdi.connect.LaunchingConnector;
 
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.stream.Collectors;
+import com.sun.jdi.event.BreakpointEvent;
+import com.sun.jdi.event.Event;
+import com.sun.jdi.event.EventQueue;
+import com.sun.jdi.event.EventSet;
+import com.sun.jdi.event.StepEvent;
+import com.sun.jdi.event.VMDisconnectEvent;
+
+import com.sun.jdi.request.BreakpointRequest;
+import com.sun.jdi.request.EventRequestManager;
+import com.sun.jdi.request.StepRequest;
+
+import java.util.List;
+import java.util.Map;
+
 
 public class DebugSession {
     private final String id;
