@@ -1,17 +1,26 @@
-
-# ---- Build stage ----
 FROM gradle:8.9-jdk17 AS build
 WORKDIR /workspace
 
-# Copy everything the build needs
+# copy everything the build needs
 COPY . .
-# guard against CRLF just in case
+
+# normalize wrapper + make it executable
 RUN sed -i 's/\r$//' gradlew && chmod +x gradlew
 
-# Build the Boot jar
+# --- DEBUG: show gradle files + non-ASCII chars (smart quotes, en-dash, etc.)
+RUN echo "===== build.gradle =====" && nl -ba build.gradle | sed -n '1,300p' && \
+    echo "===== settings.gradle (if present) =====" && (test -f settings.gradle && nl -ba settings.gradle | sed -n '1,200p' || true) && \
+    echo "===== non-ASCII scan =====" && \
+    (grep -nP '[^\x00-\x7F]' build.gradle || true) && \
+    (test -f settings.gradle && grep -nP '[^\x00-\x7F]' settings.gradle || true)
+
+# try a light task to surface parser errors with more context
+RUN ./gradlew --no-daemon help --stacktrace --info
+
+# then build
 RUN ./gradlew --no-daemon clean bootJar -x test --stacktrace
 
-# ---- Runtime stage ----
+# runtime
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /workspace/build/libs/*.jar app.jar
