@@ -1,29 +1,31 @@
+# ---- Build stage ----
 FROM gradle:8.9-jdk17 AS build
 WORKDIR /workspace
 
-# copy everything the build needs
-COPY . .
+# Copy Gradle wrapper & build scripts first (better layer caching)
+COPY gradlew ./gradlew
+COPY gradle/ ./gradle/
+COPY build.gradle* ./
 
-# normalize wrapper + make it executable
+# Make wrapper executable & normalize line endings
 RUN sed -i 's/\r$//' gradlew && chmod +x gradlew
 
-# --- DEBUG: show gradle files + non-ASCII chars (smart quotes, en-dash, etc.)
-RUN echo "===== build.gradle =====" && nl -ba build.gradle | sed -n '1,300p' && \
-    echo "===== settings.gradle (if present) =====" && (test -f settings.gradle && nl -ba settings.gradle | sed -n '1,200p' || true) && \
-    echo "===== non-ASCII scan =====" && \
-    (grep -nP '[^\x00-\x7F]' build.gradle || true) && \
-    (test -f settings.gradle && grep -nP '[^\x00-\x7F]' settings.gradle || true)
+# (Optional) warm up Gradle configuration/deps cache
+RUN ./gradlew --no-daemon --version
 
-# try a light task to surface parser errors with more context
-RUN ./gradlew --no-daemon help --stacktrace --info
+# Now copy sources
+COPY src/ ./src/
 
-# then build
-RUN ./gradlew --no-daemon clean bootJar -x test --stacktrace
+# Build the Spring Boot jar (skip tests if needed)
+RUN ./gradlew --no-daemon clean bootJar -x test
 
-# runtime
+# ---- Runtime stage ----
 FROM eclipse-temurin:17-jre
 WORKDIR /app
-COPY --from=build /workspace/build/libs/*.jar app.jar
+
+# Copy the built jar from the build stage
+COPY --from=build /workspace/build/libs/*.jar /app/app.jar
+
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","/app/app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
 
