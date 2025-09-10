@@ -1,0 +1,7 @@
+.gradle
+build
+out
+target
+node_modules
+*.iml
+.DS_Store
