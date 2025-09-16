@@ -1,25 +1,24 @@
-package com.example.debugger;
+package com.debugger.controller;
 
-public class BreakpointRequest {
-    private String className;
-    private int line;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-    public BreakpointRequest() {
-    }
+import java.util.Map;
 
-    public String getClassName() {
-        return className;
-    }
+@RestController
+@RequestMapping("/api/breakpoints")
+public class BreakpointController {
 
-    public void setClassName(String className) {
-        this.className = className;
-    }
+    @PostMapping
+    public ResponseEntity<String> addBreakpoint(@RequestBody Map<String, Object> body) {
+        String className = (String) body.get("className");
+        Integer line = (Integer) body.get("line");
 
-    public int getLine() {
-        return line;
-    }
+        if (className == null || line == null) {
+            return ResponseEntity.badRequest().body("className and line are required");
+        }
 
-    public void setLine(int line) {
-        this.line = line;
+        // TODO: Hook into debugger engine
+        return ResponseEntity.ok("Breakpoint added: " + className + ":" + line);
     }
 }
