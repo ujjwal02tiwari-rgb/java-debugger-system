@@ -1,39 +1,34 @@
-package com.example.debugger;
+package com.example.debugger.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import com.example.debugger.dto.LaunchRequest;
 import com.example.debugger.dto.BreakpointRequest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.*;
 
 @RestController
-@RequestMapping("/api/debug")
+@RequestMapping("/api")
 public class DebugController {
-    private final DebuggerService debugger;
 
-    @Autowired
-    public DebugController(DebuggerService debugger) {
-        this.debugger = debugger;
+    @PostMapping("/sessions")
+    public ResponseEntity<Map<String, String>> createSession() {
+        Map<String, String> response = new HashMap<>();
+        response.put("sessionId", UUID.randomUUID().toString());
+        return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/session")
-    public Map<String, String> createSession() throws Exception {
-        DebugSession session = debugger.createSession();
-        return Map.of("sessionId", session.getId());
+    @PostMapping("/launch")
+    public ResponseEntity<Map<String, String>> launch(@RequestBody LaunchRequest req) {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Launched target: " + req.getMainClass());
+        return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/session/{id}/launch")
-    public void launch(@PathVariable("id") String id, @RequestBody LaunchRequest req) throws Exception {
-        debugger.launch(id, req.getMainClass());
-    }
-
-    @PostMapping("/session/{id}/breakpoint")
-    public void addBreakpoint(@PathVariable("id") String id, @RequestBody BreakpointRequest req) throws Exception {
-        debugger.addBreakpoint(id, req.getClassName(), req.getLine());
+    @PostMapping("/breakpoints")
+    public ResponseEntity<Map<String, String>> addBreakpoint(@RequestBody BreakpointRequest req) {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Breakpoint added: " + req.getClassName() + ":" + req.getLine());
+        return ResponseEntity.ok(response);
     }
 }
